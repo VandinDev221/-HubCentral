@@ -15,13 +15,13 @@ const Wrapper = styled.div`
 
 const LoginCard = styled(Card)`
   width: 100%;
-  max-width: 480px;
-  padding: 40px 48px;
+  max-width: 560px;
+  padding: 48px 56px;
 `;
 
 const Title = styled.h1`
-  margin: 0 0 8px 0;
-  font-size: 1.75rem;
+  margin: 0 0 12px 0;
+  font-size: 2rem;
   font-weight: 700;
   color: #0f172a;
 `;
@@ -29,7 +29,7 @@ const Title = styled.h1`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 `;
 
 export function Login() {
@@ -62,7 +62,7 @@ export function Login() {
     <Wrapper>
       <LoginCard>
         <Title>Hub Central</Title>
-        <p style={{ margin: '0 0 28px 0', color: '#64748b', fontSize: '0.9375rem' }}>Entre com sua conta admin</p>
+        <p style={{ margin: '0 0 32px 0', color: '#64748b', fontSize: '1rem' }}>Entre com sua conta admin</p>
         <Form onSubmit={handleSubmit}>
           <Input
             label="E-mail"
@@ -81,7 +81,7 @@ export function Login() {
             required
           />
           {error && <span style={{ color: '#dc2626', fontSize: '14px' }}>{error}</span>}
-          <Button type="submit" disabled={loading} style={{ marginTop: '8px' }}>
+          <Button type="submit" disabled={loading} style={{ marginTop: '12px', padding: '12px 24px', fontSize: '1rem' }}>
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
         </Form>
