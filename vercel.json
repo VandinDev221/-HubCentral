@@ -1,0 +1,6 @@
+{
+  "buildCommand": "npm run build -w @hub-central/admin-web",
+  "outputDirectory": "apps/admin-web/dist",
+  "installCommand": "npm install",
+  "framework": null
+}
