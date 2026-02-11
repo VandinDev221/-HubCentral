@@ -84,6 +84,10 @@ npm run dev
 - **Login**: `admin@hubcentral.com` / `admin123`  
 - **API Swagger**: http://localhost:3000/api/docs  
 
+### 7. Deploy (Vercel + banco na nuvem)
+
+Para subir o admin na Vercel e usar um PostgreSQL na nuvem (Vercel Postgres ou Neon), veja **[DEPLOY.md](./DEPLOY.md)**.
+
 ## Estrutura do monorepo
 
 ```
@@ -159,6 +163,7 @@ Eventos registrados em `AuditLog`: criação de fatura, pagamento, bloqueio auto
 | `npm run dev:api`  | Só a API                     |
 | `npm run dev:admin`| Só o Admin                   |
 | `npm run db:studio`| Prisma Studio (UI do banco)  |
+| `npm run db:migrate:deploy` | Aplica migrações no banco de produção |
 | `npm run storybook`| Storybook do design system   |
 | `npm run docker:up`| Sobe PostgreSQL com Docker   |
 
