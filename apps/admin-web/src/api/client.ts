@@ -1,11 +1,14 @@
 const getToken = () => localStorage.getItem('hub_central_token');
 
+const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
+
 export async function api<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
   const token = getToken();
-  const res = await fetch(path.startsWith('http') ? path : `/v1${path}`, {
+  const url = path.startsWith('http') ? path : `${API_BASE}/v1${path}`;
+  const res = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
