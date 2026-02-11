@@ -1,6 +1,25 @@
 # Deploy Hub Central (Vercel + banco)
 
-Guia para colocar o **admin** na Vercel e usar um **PostgreSQL na nuvem** (Vercel Postgres ou Neon).
+## Rodando só na sua máquina (sem Railway, sem Vercel)
+
+Não precisa configurar nada. Na pasta do projeto:
+
+```bash
+npm run dev:api    # terminal 1 – API na porta 3001
+npm run dev:admin  # terminal 2 – Admin na porta 5173
+```
+
+Abra **http://localhost:5173**. O admin usa o proxy e fala com a API no localhost. Banco: use o `.env` da API (PostgreSQL local ou Neon).
+
+---
+
+## Admin na Vercel + API em algum lugar (Railway, Render, etc.)
+
+Se você subir o **admin** na Vercel e a **API** em outro serviço (Railway, Render, Fly.io):
+
+1. **Vercel** → projeto do admin → **Settings** → **Environment Variables**
+2. Adicione: `VITE_API_URL` = URL pública da sua API (ex: `https://sua-api.onrender.com`) — **sem** barra no final
+3. **Redeploy** do admin
 
 ---
 
