@@ -1,5 +1,17 @@
 # Deploy Hub Central (Vercel + banco)
 
+## Migrações + seed no Neon a cada push (GitHub Actions)
+
+Ao dar **push na branch `main`**, o GitHub Actions roda automaticamente no Neon:
+
+- `db:generate`
+- `db:migrate:deploy`
+- `db:seed`
+
+**Configurar uma vez:** no repositório no GitHub → **Settings** → **Secrets and variables** → **Actions** → **New repository secret** → nome: `DATABASE_URL`, valor: sua connection string do Neon (a mesma do `.env` da API).
+
+---
+
 ## Rodando só na sua máquina (sem Railway, sem Vercel)
 
 Não precisa configurar nada. Na pasta do projeto:
