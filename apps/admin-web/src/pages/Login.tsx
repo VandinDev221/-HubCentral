@@ -15,12 +15,13 @@ const Wrapper = styled.div`
 
 const LoginCard = styled(Card)`
   width: 100%;
-  max-width: 400px;
+  max-width: 480px;
+  padding: 40px 48px;
 `;
 
 const Title = styled.h1`
-  margin: 0 0 24px 0;
-  font-size: 1.5rem;
+  margin: 0 0 8px 0;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #0f172a;
 `;
@@ -28,7 +29,7 @@ const Title = styled.h1`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 `;
 
 export function Login() {
@@ -61,7 +62,7 @@ export function Login() {
     <Wrapper>
       <LoginCard>
         <Title>Hub Central</Title>
-        <p style={{ margin: '0 0 24px 0', color: '#64748b' }}>Entre com sua conta admin</p>
+        <p style={{ margin: '0 0 28px 0', color: '#64748b', fontSize: '0.9375rem' }}>Entre com sua conta admin</p>
         <Form onSubmit={handleSubmit}>
           <Input
             label="E-mail"
