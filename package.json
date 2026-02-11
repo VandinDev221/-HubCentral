@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "build:admin": "cd apps/admin-web && npx tsc -b && npx vite build",
+    "build:admin": "cd apps/admin-web && npx vite build",
     "dev:api": "npm run dev -w @hub-central/api",
     "dev:admin": "npm run dev -w @hub-central/admin-web",
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:admin\"",
