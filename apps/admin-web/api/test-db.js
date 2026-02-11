@@ -16,7 +16,23 @@ export default async function handler(req, res) {
     const sql = neon(url);
     await sql('SELECT 1');
 
-    return res.status(200).json({ ok: true, message: 'Conexao com o banco OK.' });
+    let migrationsRun = false;
+    let lastMigrations = [];
+
+    try {
+      const rows = await sql`SELECT migration_name, finished_at FROM _prisma_migrations ORDER BY finished_at DESC LIMIT 10`;
+      migrationsRun = Array.isArray(rows) && rows.length > 0;
+      lastMigrations = (rows || []).map((r) => ({ name: r.migration_name, at: r.finished_at }));
+    } catch (_) {
+      // Tabela _prisma_migrations nao existe = migracoes nunca rodaram
+    }
+
+    return res.status(200).json({
+      ok: true,
+      message: 'Conexao com o banco OK.',
+      migrationsRun,
+      lastMigrations,
+    });
   } catch (err) {
     const msg = err?.message || String(err);
     return res.status(500).json({
