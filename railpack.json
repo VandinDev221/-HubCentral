@@ -2,9 +2,10 @@
   "$schema": "https://schema.railpack.com",
   "steps": {
     "install": {
-      "commands": [
-        {"cmd": "npm install", "customName": "Install dependencies"}
-      ]
+      "inputs": [
+        {"local": true, "include": ["."]}
+      ],
+      "commands": ["npm install"]
     }
   }
 }
