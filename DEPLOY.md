@@ -34,6 +34,7 @@ Abra **http://localhost:5173**. O admin usa o proxy e fala com a API no localhos
    - `DATABASE_URL` = sua connection string do Neon (a mesma do `apps/api/.env`)
    - `JWT_SECRET` = uma chave secreta (ex.: `hub-central-secret-key-change-in-production`)
    - `JWT_EXPIRES` = `7d` (opcional)
+   - **`RAILPACK_INSTALL_CMD`** = **`npm install`** (obrigatório: evita erro de `npm ci` quando o lock file está desatualizado no deploy)
    - O **PORT** o Railway define sozinho; a API já usa `process.env.PORT`.
 5. **Settings** do serviço:
    - **Build Command:** `npm install && npm run build:api`
