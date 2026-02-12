@@ -10,6 +10,8 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "build:admin": "cd apps/admin-web && npx vite build",
+    "build:api": "npm run db:generate -w @hub-central/api && npm run build -w @hub-central/api",
+    "start:api": "npm run start:prod -w @hub-central/api",
     "dev:api": "npm run dev -w @hub-central/api",
     "dev:admin": "npm run dev -w @hub-central/admin-web",
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:admin\"",

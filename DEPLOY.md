@@ -25,13 +25,32 @@ Abra **http://localhost:5173**. O admin usa o proxy e fala com a API no localhos
 
 ---
 
-## Admin na Vercel + API em algum lugar (Railway, Render, etc.)
+## Deploy da API no Railway (para o login na Vercel funcionar)
 
-Se você subir o **admin** na Vercel e a **API** em outro serviço (Railway, Render, Fly.io):
+1. Acesse [railway.app](https://railway.app), crie conta e **New Project**.
+2. **Deploy from GitHub repo** → conecte o repositório **VandinDev221/-HubCentral**.
+3. Deixe a **raiz do repositório** (não use Root Directory).
+4. **Variables** (variáveis de ambiente): adicione:
+   - `DATABASE_URL` = sua connection string do Neon (a mesma do `apps/api/.env`)
+   - `JWT_SECRET` = uma chave secreta (ex.: `hub-central-secret-key-change-in-production`)
+   - `JWT_EXPIRES` = `7d` (opcional)
+   - O **PORT** o Railway define sozinho; a API já usa `process.env.PORT`.
+5. **Settings** do serviço:
+   - **Build Command:** `npm install && npm run build:api`
+   - **Start Command:** `npm run start:api`
+   - **Watch Paths:** (vazio ou `apps/api`)
+6. **Deploy** → quando terminar, abra **Settings** → **Networking** → **Generate Domain** e copie a URL (ex.: `https://hub-central-api-production-xxxx.up.railway.app`).
 
-1. **Vercel** → projeto do admin → **Settings** → **Environment Variables**
-2. Adicione: `VITE_API_URL` = URL pública da sua API (ex: `https://sua-api.onrender.com`) — **sem** barra no final
-3. **Redeploy** do admin
+---
+
+## Admin na Vercel apontando para a API (Railway)
+
+1. **Vercel** → projeto do **admin** → **Settings** → **Environment Variables**
+2. Adicione: `VITE_API_URL` = **URL do Railway** (a que você gerou no passo 6 acima) — **sem** barra no final.  
+   Ex.: `https://hub-central-api-production-xxxx.up.railway.app`
+3. **Redeploy** do admin na Vercel.
+
+Depois disso, o login no site da Vercel usa a API no Railway e o banco Neon.
 
 ---
 
