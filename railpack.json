@@ -1,11 +1,3 @@
 {
-  "$schema": "https://schema.railpack.com",
-  "steps": {
-    "install": {
-      "inputs": [
-        {"local": true, "include": ["."]}
-      ],
-      "commands": ["npm install"]
-    }
-  }
+  "$schema": "https://schema.railpack.com"
 }
