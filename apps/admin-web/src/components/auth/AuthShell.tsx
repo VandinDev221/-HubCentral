@@ -16,26 +16,39 @@ const float = keyframes`
 export const AuthPage = styled.div`
   min-height: 100vh;
   min-height: 100dvh;
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 
   @media (min-width: 960px) {
+    display: grid;
     grid-template-columns: 1.05fr 1fr;
+    overflow: hidden;
   }
 `;
 
 export const AuthBrandPanel = styled.aside`
-  display: none;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 45%, #0f172a 100%);
-  padding: 48px;
+  display: flex;
   flex-direction: column;
   justify-content: space-between;
+  flex-shrink: 0;
+  background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 45%, #0f172a 100%);
+  padding: 28px 24px 24px;
+  min-height: 220px;
+
+  @media (min-width: 640px) {
+    padding: 36px 32px 28px;
+    min-height: 280px;
+  }
 
   @media (min-width: 960px) {
-    display: flex;
+    padding: 48px;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 `;
 
@@ -54,16 +67,54 @@ export const AuthOrb = styled.div<{ $top: string; $left: string; $size: string; 
   pointer-events: none;
 `;
 
+const AuthBrandHeadline = styled.h1`
+  margin: 28px 0 12px;
+  font-size: clamp(1.5rem, 5vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  color: #fff;
+  max-width: 420px;
+
+  @media (min-width: 960px) {
+    margin: 48px 0 16px;
+  }
+`;
+
+const AuthBrandText = styled.p`
+  margin: 0;
+  font-size: clamp(0.9375rem, 2.5vw, 1.0625rem);
+  line-height: 1.65;
+  color: rgb(255 255 255 / 0.72);
+  max-width: 400px;
+`;
+
+const AuthBrandFooter = styled.p`
+  margin: 20px 0 0;
+  font-size: 0.8125rem;
+  color: rgb(255 255 255 / 0.45);
+
+  @media (min-width: 960px) {
+    margin: 0;
+  }
+`;
+
 export const AuthFormPanel = styled.main`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 24px;
-  background: var(--bg);
+  flex: 1;
+  padding: 28px 20px 32px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+
+  @media (min-width: 640px) {
+    padding: 32px 24px 40px;
+  }
 
   @media (min-width: 960px) {
     padding: 48px;
-    background: var(--surface);
+    border-top: none;
     border-left: 1px solid var(--border);
   }
 `;
@@ -76,7 +127,7 @@ export const AuthFormInner = styled.div`
 
 export const AuthFormTitle = styled.h2`
   margin: 0 0 8px;
-  font-size: 1.75rem;
+  font-size: clamp(1.375rem, 4vw, 1.75rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text);
@@ -156,14 +207,10 @@ export function AuthBrandSide() {
       <AuthOrb $top="70%" $left="10%" $size="200px" $color="#8b5cf6" $delay="4s" />
       <div>
         <Logo size="lg" light inverted showSubtitle />
-        <h1 style={{ margin: '48px 0 16px', fontSize: 'clamp(2rem, 3vw, 2.75rem)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.15, color: '#fff', maxWidth: 420 }}>
-          Gestão de clientes e faturamento, em um só lugar.
-        </h1>
-        <p style={{ margin: 0, fontSize: '1.0625rem', lineHeight: 1.65, color: 'rgb(255 255 255 / 0.72)', maxWidth: 400 }}>
-          Cadastre-se com e-mail ou Google e acesse o painel admin.
-        </p>
+        <AuthBrandHeadline>Gestão de clientes e faturamento, em um só lugar.</AuthBrandHeadline>
+        <AuthBrandText>Cadastre-se com e-mail ou Google e acesse o painel admin.</AuthBrandText>
       </div>
-      <p style={{ margin: 0, fontSize: '0.8125rem', color: 'rgb(255 255 255 / 0.45)' }}>© Hub Central · Plataforma SaaS</p>
+      <AuthBrandFooter>© Hub Central · Plataforma SaaS</AuthBrandFooter>
     </AuthBrandPanel>
   );
 }
