@@ -11,6 +11,7 @@ function validateProductionEnv() {
   const missing: string[] = [];
   if (!process.env.DATABASE_URL) missing.push('DATABASE_URL');
   if (!process.env.JWT_SECRET) missing.push('JWT_SECRET');
+  if (!process.env.ADMIN_ORIGIN?.trim()) missing.push('ADMIN_ORIGIN');
 
   if (missing.length > 0) {
     throw new Error(`Variáveis obrigatórias em produção: ${missing.join(', ')}`);
@@ -37,14 +38,21 @@ async function bootstrap() {
   app.useGlobalInterceptors(new LoggingInterceptor());
 
   const adminOrigin = process.env.ADMIN_ORIGIN?.trim();
-  app.enableCors(
-    adminOrigin
-      ? {
-          origin: adminOrigin.split(',').map((o) => o.trim()),
-          credentials: true,
-        }
-      : undefined,
-  );
+  const corsOrigins = adminOrigin
+    ? adminOrigin.split(',').map((o) => o.trim()).filter(Boolean)
+    : [];
+
+  if (corsOrigins.length > 0) {
+    app.enableCors({
+      origin: corsOrigins,
+      credentials: true,
+      methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    });
+    console.log(`CORS ativo para: ${corsOrigins.join(', ')}`);
+  } else {
+    console.warn('ADMIN_ORIGIN não definido — CORS desativado (browser bloqueará o admin na Vercel)');
+  }
 
   const config = new DocumentBuilder()
     .setTitle('Hub Central API')
