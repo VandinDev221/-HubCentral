@@ -1,0 +1,33 @@
+{
+  "name": "hub-central",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hub Central SaaS - Clientes e Faturamento",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "build:admin": "cd apps/admin-web && npx vite build",
+    "build:api": "npm run db:generate -w @hub-central/api && npm run build -w @hub-central/api",
+    "start:api": "npm run start:prod -w @hub-central/api",
+    "dev:api": "npm run dev -w @hub-central/api",
+    "dev:admin": "npm run dev -w @hub-central/admin-web",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:admin\"",
+    "db:generate": "npm run db:generate -w @hub-central/api",
+    "db:migrate": "npm run db:migrate -w @hub-central/api",
+    "db:migrate:deploy": "npm run db:migrate:deploy -w @hub-central/api",
+    "db:seed": "npm run db:seed -w @hub-central/api",
+    "db:studio": "npm run db:studio -w @hub-central/api",
+    "storybook": "npm run storybook -w @hub-central/ui-design-system",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

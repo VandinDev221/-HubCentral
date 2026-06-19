@@ -1,0 +1,23 @@
+# Blueprint Render — API NestJS (monorepo na raiz)
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: hub-central-api
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build:api && npm run db:migrate:deploy
+    startCommand: npm run start:api
+    healthCheckPath: /v1/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES
+        value: 7d
+      - key: ADMIN_ORIGIN
+        sync: false
