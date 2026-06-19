@@ -1,12 +1,15 @@
 export const colors = {
-  primary: '#2563eb',
-  primaryHover: '#1d4ed8',
-  primaryLight: '#dbeafe',
+  primary: '#4f46e5',
+  primaryHover: '#4338ca',
+  primaryLight: '#eef2ff',
+  primaryMuted: '#c7d2fe',
+  accent: '#06b6d4',
+  accentLight: '#ecfeff',
   secondary: '#64748b',
-  success: '#16a34a',
-  successLight: '#dcfce7',
-  warning: '#ca8a04',
-  warningLight: '#fef9c3',
+  success: '#059669',
+  successLight: '#d1fae5',
+  warning: '#d97706',
+  warningLight: '#fef3c7',
   error: '#dc2626',
   errorLight: '#fee2e2',
   white: '#ffffff',
@@ -20,10 +23,11 @@ export const colors = {
   gray700: '#334155',
   gray800: '#1e293b',
   gray900: '#0f172a',
+  gray950: '#020617',
 };
 
 export const typography = {
-  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   fontSize: {
     xs: '0.75rem',
     sm: '0.875rem',
@@ -32,12 +36,14 @@ export const typography = {
     xl: '1.25rem',
     '2xl': '1.5rem',
     '3xl': '1.875rem',
+    '4xl': '2.25rem',
   },
   fontWeight: {
     normal: 400,
     medium: 500,
     semibold: 600,
     bold: 700,
+    extrabold: 800,
   },
 };
 
@@ -56,14 +62,23 @@ export const spacing = {
 };
 
 export const borderRadius = {
-  sm: '4px',
-  md: '8px',
-  lg: '12px',
+  sm: '6px',
+  md: '10px',
+  lg: '14px',
+  xl: '20px',
   full: '9999px',
 };
 
 export const shadows = {
-  sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-  md: '0 4px 6px -1 rgb(0 0 0 / 0.1), 0 2px 4px -2 rgb(0 0 0 / 0.1)',
-  lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+  sm: '0 1px 2px 0 rgb(0 0 0 / 0.04)',
+  md: '0 4px 12px -2px rgb(0 0 0 / 0.08)',
+  lg: '0 12px 32px -8px rgb(0 0 0 / 0.12)',
+  xl: '0 24px 48px -12px rgb(0 0 0 / 0.18)',
+  glow: '0 0 0 3px rgb(79 70 229 / 0.15)',
+};
+
+export const transitions = {
+  fast: '150ms cubic-bezier(0.4, 0, 0.2, 1)',
+  base: '200ms cubic-bezier(0.4, 0, 0.2, 1)',
+  slow: '300ms cubic-bezier(0.4, 0, 0.2, 1)',
 };

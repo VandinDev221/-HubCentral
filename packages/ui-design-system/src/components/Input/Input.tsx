@@ -1,29 +1,52 @@
 import React from 'react';
 import styled from 'styled-components';
-import { colors, spacing, borderRadius, typography } from '../../tokens';
+import { colors, spacing, borderRadius, typography, shadows, transitions } from '../../tokens';
+
+const Field = styled.div`
+  width: 100%;
+`;
+
+const Label = styled.label`
+  display: block;
+  margin-bottom: ${spacing[2]};
+  font-size: ${typography.fontSize.sm};
+  font-weight: ${typography.fontWeight.semibold};
+  color: ${colors.gray700};
+  letter-spacing: -0.01em;
+`;
 
 const StyledInput = styled.input`
   font-family: ${typography.fontFamily};
   font-size: ${typography.fontSize.md};
-  padding: ${spacing[2]} ${spacing[3]};
-  border: 1px solid ${colors.gray300};
-  border-radius: ${borderRadius.md};
+  padding: ${spacing[3]} ${spacing[4]};
+  border: 1.5px solid ${colors.gray200};
+  border-radius: ${borderRadius.lg};
   background: ${colors.white};
-  color: ${colors.gray800};
+  color: ${colors.gray900};
   width: 100%;
   box-sizing: border-box;
+  transition: border-color ${transitions.base}, box-shadow ${transitions.base};
+
   &:focus {
     outline: none;
     border-color: ${colors.primary};
-    box-shadow: 0 0 0 3px ${colors.primaryLight};
+    box-shadow: ${shadows.glow};
   }
   &::placeholder {
     color: ${colors.gray400};
   }
   &:disabled {
-    background: ${colors.gray100};
+    background: ${colors.gray50};
     cursor: not-allowed;
+    opacity: 0.7;
   }
+`;
+
+const ErrorText = styled.span`
+  font-size: ${typography.fontSize.sm};
+  color: ${colors.error};
+  margin-top: ${spacing[2]};
+  display: block;
 `;
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -34,27 +57,10 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 export function Input({ label, error, id, ...props }: InputProps) {
   const inputId = id || `input-${Math.random().toString(36).slice(2)}`;
   return (
-    <div style={{ width: '100%' }}>
-      {label && (
-        <label
-          htmlFor={inputId}
-          style={{
-            display: 'block',
-            marginBottom: spacing[1],
-            fontSize: typography.fontSize.sm,
-            fontWeight: typography.fontWeight.medium,
-            color: colors.gray700,
-          }}
-        >
-          {label}
-        </label>
-      )}
+    <Field>
+      {label && <Label htmlFor={inputId}>{label}</Label>}
       <StyledInput id={inputId} aria-invalid={!!error} {...props} />
-      {error && (
-        <span style={{ fontSize: typography.fontSize.xs, color: colors.error, marginTop: spacing[1], display: 'block' }}>
-          {error}
-        </span>
-      )}
-    </div>
+      {error && <ErrorText>{error}</ErrorText>}
+    </Field>
   );
 }

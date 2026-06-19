@@ -5,14 +5,19 @@ const Bar = styled.header`
   position: sticky;
   top: 0;
   z-index: 100;
-  height: 56px;
-  background: var(--surface);
+  height: 60px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 20px;
   box-sizing: border-box;
+  backdrop-filter: blur(12px);
+  background: rgb(255 255 255 / 0.88);
+
+  [data-theme='dark'] & {
+    background: rgb(30 41 59 / 0.92);
+  }
 `;
 
 const Left = styled.div`
@@ -22,14 +27,22 @@ const Left = styled.div`
 `;
 
 const MenuBtn = styled.button`
-  background: none;
-  border: none;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
   padding: 8px;
+  border-radius: 10px;
   cursor: pointer;
   color: var(--text);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: var(--primary-light);
+    border-color: rgb(79 70 229 / 0.25);
+  }
+
   @media (min-width: 1024px) {
     display: none;
   }
@@ -38,18 +51,19 @@ const MenuBtn = styled.button`
 const Title = styled.h1`
   margin: 0;
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text);
 `;
 
 const Right = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 `;
 
-const IconBtn = styled.button<{ $active?: boolean }>`
-  background: none;
+const IconBtn = styled.button`
+  background: transparent;
   border: none;
   padding: 8px;
   cursor: pointer;
@@ -57,12 +71,13 @@ const IconBtn = styled.button<{ $active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 10px;
+  transition: background 0.2s, color 0.2s;
+
   &:hover {
-    background: var(--bottom-nav-active);
+    background: var(--primary-light);
     color: var(--primary);
   }
-  ${({ $active }) => $active && `color: var(--primary);`}
 `;
 
 interface AppBarProps {
@@ -77,7 +92,7 @@ export function AppBar({ title, onMenuClick }: AppBarProps) {
     <Bar>
       <Left>
         <MenuBtn onClick={onMenuClick} aria-label="Abrir menu">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="3" y1="6" x2="21" y2="6" />
             <line x1="3" y1="12" x2="21" y2="12" />
             <line x1="3" y1="18" x2="21" y2="18" />
@@ -104,12 +119,6 @@ export function AppBar({ title, onMenuClick }: AppBarProps) {
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
             </svg>
           )}
-        </IconBtn>
-        <IconBtn aria-label="Notificações">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-          </svg>
         </IconBtn>
       </Right>
     </Bar>
