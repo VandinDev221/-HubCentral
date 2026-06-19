@@ -11,10 +11,10 @@ export class EmailService {
 
   constructor(private readonly config: ConfigService) {
     const host = config.get<string>('SMTP_HOST');
-    const port = Number(config.get<string>('SMTP_PORT', '587'));
+    const port = Number(config.get<string>('SMTP_PORT', '465'));
     const user = config.get<string>('SMTP_USER');
     const pass = config.get<string>('SMTP_PASS');
-    this.from = config.get<string>('MAIL_FROM', 'Hub Central <noreply@hubcentral.com>');
+    this.from = config.get<string>('MAIL_FROM', 'Hub Central <onboarding@resend.dev>');
 
     if (host && user && pass) {
       this.transporter = nodemailer.createTransport({
@@ -23,8 +23,16 @@ export class EmailService {
         secure: port === 465,
         auth: { user, pass },
       });
+      this.logger.log(`SMTP ativo (${host}:${port}, from=${this.from})`);
     } else {
-      this.logger.warn('SMTP não configurado — códigos serão logados no console.');
+      const missing = [
+        !host && 'SMTP_HOST',
+        !user && 'SMTP_USER',
+        !pass && 'SMTP_PASS',
+      ].filter(Boolean);
+      this.logger.warn(
+        `SMTP não configurado (${missing.join(', ') || 'variáveis vazias'}) — códigos só no log.`,
+      );
     }
   }
 
@@ -42,10 +50,16 @@ export class EmailService {
       </div>`;
 
     if (!this.transporter) {
-      this.logger.log(`[DEV] Código para ${to}: ${code}`);
+      this.logger.log(`[sem SMTP] Código para ${to}: ${code}`);
       return;
     }
 
-    await this.transporter.sendMail({ from: this.from, to, subject, text, html });
+    try {
+      await this.transporter.sendMail({ from: this.from, to, subject, text, html });
+      this.logger.log(`E-mail de verificação enviado para ${to}`);
+    } catch (err) {
+      this.logger.error(`Falha ao enviar e-mail para ${to}`, err instanceof Error ? err.stack : err);
+      throw err;
+    }
   }
 }

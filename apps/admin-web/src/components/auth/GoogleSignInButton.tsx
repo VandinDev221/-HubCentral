@@ -33,6 +33,39 @@ const GoogleButtonWrap = styled.div<{ $disabled?: boolean }>`
   }
 `;
 
+let gsiInitializedForClient: string | null = null;
+let gsiCredentialHandler: ((credential: string) => void) | null = null;
+
+function loadGsiScript(onReady: () => void) {
+  if (window.google?.accounts?.id) {
+    onReady();
+    return;
+  }
+
+  const existing = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+  if (existing) {
+    existing.addEventListener('load', onReady, { once: true });
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = 'https://accounts.google.com/gsi/client';
+  script.async = true;
+  script.onload = onReady;
+  document.body.appendChild(script);
+}
+
+function ensureGsiInitialized(clientId: string) {
+  if (!window.google?.accounts?.id) return;
+  if (gsiInitializedForClient === clientId) return;
+
+  window.google.accounts.id.initialize({
+    client_id: clientId,
+    callback: (res) => gsiCredentialHandler?.(res.credential),
+  });
+  gsiInitializedForClient = clientId;
+}
+
 interface GoogleSignInButtonProps {
   onCredential: (credential: string) => void;
   disabled?: boolean;
@@ -40,19 +73,23 @@ interface GoogleSignInButtonProps {
 
 export function GoogleSignInButton({ onCredential, disabled }: GoogleSignInButtonProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const onCredentialRef = useRef(onCredential);
+  onCredentialRef.current = onCredential;
+
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 
   useEffect(() => {
-    if (!clientId || !ref.current || disabled) return;
+    gsiCredentialHandler = (credential) => onCredentialRef.current(credential);
+  });
 
-    const render = () => {
-      if (!ref.current || !window.google) return;
+  useEffect(() => {
+    if (!clientId || disabled) return;
+
+    const renderButton = () => {
+      if (!ref.current || !window.google?.accounts?.id) return;
+      ensureGsiInitialized(clientId);
       ref.current.innerHTML = '';
       const width = Math.min(360, ref.current.offsetWidth || 360);
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        callback: (res) => onCredential(res.credential),
-      });
       window.google.accounts.id.renderButton(ref.current, {
         theme: 'outline',
         size: 'large',
@@ -62,24 +99,10 @@ export function GoogleSignInButton({ onCredential, disabled }: GoogleSignInButto
       });
     };
 
-    if (window.google) {
-      render();
-    } else {
-      const existing = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
-      if (existing) {
-        existing.addEventListener('load', render);
-      } else {
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.onload = render;
-        document.body.appendChild(script);
-      }
-    }
-
-    window.addEventListener('resize', render);
-    return () => window.removeEventListener('resize', render);
-  }, [clientId, onCredential, disabled]);
+    loadGsiScript(renderButton);
+    window.addEventListener('resize', renderButton);
+    return () => window.removeEventListener('resize', renderButton);
+  }, [clientId, disabled]);
 
   if (!clientId) {
     return (
