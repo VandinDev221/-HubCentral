@@ -67,6 +67,9 @@ async function bootstrap() {
   await app.listen(port);
   console.log(`API rodando em http://localhost:${port}/v1`);
   console.log(`Swagger em http://localhost:${port}/api/docs`);
+  if (corsOrigins.length === 0) {
+    console.warn('⚠ ADMIN_ORIGIN ausente — configure https://hub-central-admin-web.vercel.app no Render');
+  }
 }
 
 bootstrap().catch(console.error);

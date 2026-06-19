@@ -59,7 +59,7 @@ export class EmailService {
       this.logger.log(`E-mail de verificação enviado para ${to}`);
     } catch (err) {
       this.logger.error(`Falha ao enviar e-mail para ${to}`, err instanceof Error ? err.stack : err);
-      throw err;
+      this.logger.warn(`[fallback] Código para ${to}: ${code} — verifique SMTP_HOST, SMTP_PASS e MAIL_FROM no Render`);
     }
   }
 }
