@@ -70,9 +70,11 @@ Local não precisa de `VITE_API_URL` — o proxy do Vite encaminha `/v1` para lo
 4. Copiar URL pública após deploy
 
 Comandos (já no `render.yaml`):
-- **Build:** `npm install && npm run build:api && npm run db:migrate:deploy`
+- **Build:** `npm run render:build`
 - **Start:** `npm run start:api`
 - **Health:** `/v1/health`
+
+> **Serviço criado manualmente no Render?** O painel **não** lê o `render.yaml` automaticamente. Em **Settings → Build Command**, cole exatamente: `npm run render:build`
 
 ## Admin na Vercel
 
