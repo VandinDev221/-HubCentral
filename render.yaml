@@ -5,14 +5,12 @@ services:
     name: hub-central-api
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build:api && npm run db:migrate:deploy
+    buildCommand: npm install --include=dev && npm run build:api && npm run db:migrate:deploy
     startCommand: npm run start:api
     healthCheckPath: /v1/health
     envVars:
       - key: NODE_VERSION
         value: "20"
-      - key: NODE_ENV
-        value: production
       - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET
