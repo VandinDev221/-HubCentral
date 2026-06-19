@@ -108,6 +108,16 @@ PORT=3001
 JWT_SECRET=uma-chave-secreta-forte-aqui
 JWT_EXPIRES=7d
 ADMIN_ORIGIN=https://seu-admin.vercel.app
+
+# Cadastro com Google (mesmo Client ID OAuth no admin e na API)
+GOOGLE_CLIENT_ID=seu-client-id.apps.googleusercontent.com
+
+# E-mail SMTP — sem configurar, códigos aparecem no log da API (dev)
+SMTP_HOST=smtp.exemplo.com
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=Hub Central <noreply@seudominio.com>
 ```
 
 ---
@@ -126,21 +136,28 @@ npm run db:seed
 
 A **Vercel** hospeda só o **admin**. A **API** roda no **Render** (`render.yaml` na raiz).
 
-Variáveis no Render: `DATABASE_URL`, `JWT_SECRET`, `ADMIN_ORIGIN`.
+Variáveis no Render: `DATABASE_URL`, `JWT_SECRET`, `ADMIN_ORIGIN`, `GOOGLE_CLIENT_ID`, `SMTP_*`, `MAIL_FROM`.
 
 ---
 
 ## 5. Admin na Vercel
 
-- `VITE_API_URL` = URL da API no Render
-- **Redeploy obrigatório** após alterar
+- `VITE_API_URL` = URL da API no Render (sem barra final)
+- `VITE_GOOGLE_CLIENT_ID` = mesmo Client ID OAuth usado na API
+- **Redeploy obrigatório** após alterar variáveis
+
+### Google Cloud Console (OAuth)
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials → **Create OAuth client ID** (Web application).
+2. **Authorized JavaScript origins:** `http://localhost:5173` e a URL do admin na Vercel.
+3. Copie o Client ID para `GOOGLE_CLIENT_ID` (Render) e `VITE_GOOGLE_CLIENT_ID` (Vercel).
 
 ---
 
 ## 6. Resumo rápido
 
 1. **Neon** → `DATABASE_URL`
-2. **Render** → blueprint + variáveis
-3. **GitHub Actions** → secret `DATABASE_URL`
-4. **Vercel** → `apps/admin-web` + `VITE_API_URL` + redeploy
-5. **Testar** → `/v1/health` + login
+2. **Render** → blueprint + variáveis (+ Google/SMTP para cadastro)
+3. **Migrações** → `npm run db:migrate:deploy` (inclui tabela `EmailVerification`)
+4. **Vercel** → `VITE_API_URL` + `VITE_GOOGLE_CLIENT_ID` + redeploy
+5. **Testar** → `/register` (e-mail + código), login Google, `/login`

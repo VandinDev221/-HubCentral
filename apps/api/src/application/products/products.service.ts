@@ -5,11 +5,12 @@ import { UpdateProductDto } from '../../presentation/products/dto/update-product
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  async create(dto: CreateProductDto) {
+  async create(dto: CreateProductDto, userId: string) {
     return this.prisma.product.create({
       data: {
+        userId,
         name: dto.name,
         price: dto.price,
         type: dto.type,
@@ -17,23 +18,24 @@ export class ProductsService {
     });
   }
 
-  async findAll() {
+  async findAll(userId: string) {
     return this.prisma.product.findMany({
+      where: { userId },
       orderBy: { name: 'asc' },
     });
   }
 
-  async findOne(id: string) {
-    const product = await this.prisma.product.findUnique({
-      where: { id },
+  async findOne(id: string, userId: string) {
+    const product = await this.prisma.product.findFirst({
+      where: { id, userId },
       include: { _count: { select: { subscriptions: true } } },
     });
     if (!product) throw new NotFoundException('Produto não encontrado');
     return product;
   }
 
-  async update(id: string, dto: UpdateProductDto) {
-    await this.findOne(id);
+  async update(id: string, dto: UpdateProductDto, userId: string) {
+    await this.findOne(id, userId);
     return this.prisma.product.update({
       where: { id },
       data: {
@@ -44,8 +46,8 @@ export class ProductsService {
     });
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(id: string, userId: string) {
+    await this.findOne(id, userId);
     await this.prisma.product.delete({ where: { id } });
     return { success: true };
   }

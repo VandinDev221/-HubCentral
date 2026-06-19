@@ -3,12 +3,16 @@ import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 
 @Injectable()
 export class DashboardService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  async getMetrics() {
+  async getMetrics(userId: string) {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+    const clientScope = { userId };
+    const invoiceScope = { client: { userId } };
+    const subscriptionScope = { status: 'active' as const, client: { userId } };
 
     const [
       totalClients,
@@ -19,20 +23,21 @@ export class DashboardService {
       paidThisMonth,
       activeSubscriptions,
     ] = await Promise.all([
-      this.prisma.client.count(),
-      this.prisma.client.count({ where: { status: 'active' } }),
-      this.prisma.client.count({ where: { status: 'suspended' } }),
-      this.prisma.invoice.count({ where: { status: 'pending' } }),
-      this.prisma.invoice.count({ where: { status: 'overdue' } }),
+      this.prisma.client.count({ where: clientScope }),
+      this.prisma.client.count({ where: { ...clientScope, status: 'active' } }),
+      this.prisma.client.count({ where: { ...clientScope, status: 'suspended' } }),
+      this.prisma.invoice.count({ where: { ...invoiceScope, status: 'pending' } }),
+      this.prisma.invoice.count({ where: { ...invoiceScope, status: 'overdue' } }),
       this.prisma.invoice.aggregate({
         where: {
+          ...invoiceScope,
           status: 'paid',
           paidAt: { gte: startOfMonth, lte: endOfMonth },
         },
         _sum: { amount: true },
       }),
       this.prisma.subscription.findMany({
-        where: { status: 'active' },
+        where: subscriptionScope,
         select: { price: true },
       }),
     ]);

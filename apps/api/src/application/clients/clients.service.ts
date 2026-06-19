@@ -9,19 +9,24 @@ export class ClientsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
-  ) {}
+  ) { }
 
-  async create(dto: CreateClientDto, userId?: string) {
+  async create(dto: CreateClientDto, userId: string) {
+    const document = dto.document.replace(/\D/g, '');
     const existing = await this.prisma.client.findFirst({
-      where: { OR: [{ email: dto.email }, { document: dto.document.replace(/\D/g, '') }] },
+      where: {
+        userId,
+        OR: [{ email: dto.email }, { document }],
+      },
     });
     if (existing) {
       throw new ConflictException('Cliente já existe com este email ou documento');
     }
     const client = await this.prisma.client.create({
       data: {
+        userId,
         name: dto.name,
-        document: dto.document.replace(/\D/g, ''),
+        document,
         email: dto.email,
         phone: dto.phone ?? null,
         status: 'active',
@@ -37,9 +42,9 @@ export class ClientsService {
     return client;
   }
 
-  async findAll(page = 1, limit = 20, status?: string) {
+  async findAll(userId: string, page = 1, limit = 20, status?: string) {
     const skip = (page - 1) * limit;
-    const where = status ? { status } : {};
+    const where = { userId, ...(status ? { status } : {}) };
     const [data, total] = await Promise.all([
       this.prisma.client.findMany({
         where,
@@ -59,9 +64,9 @@ export class ClientsService {
     };
   }
 
-  async findOne(id: string) {
-    const client = await this.prisma.client.findUnique({
-      where: { id },
+  async findOne(id: string, userId: string) {
+    const client = await this.prisma.client.findFirst({
+      where: { id, userId },
       include: {
         subscriptions: { include: { product: true } },
         invoices: { orderBy: { dueDate: 'desc' }, take: 12 },
@@ -71,8 +76,8 @@ export class ClientsService {
     return client;
   }
 
-  async update(id: string, dto: UpdateClientDto, userId?: string) {
-    await this.findOne(id);
+  async update(id: string, dto: UpdateClientDto, userId: string) {
+    await this.findOne(id, userId);
     const client = await this.prisma.client.update({
       where: { id },
       data: {
@@ -92,8 +97,8 @@ export class ClientsService {
     return client;
   }
 
-  async remove(id: string, userId?: string) {
-    await this.findOne(id);
+  async remove(id: string, userId: string) {
+    await this.findOne(id, userId);
     await this.prisma.client.delete({ where: { id } });
     await this.audit.log({
       action: 'CLIENT_DELETED',

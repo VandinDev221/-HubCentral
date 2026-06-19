@@ -8,21 +8,24 @@ async function main() {
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@hubcentral.com' },
-    update: {},
+    update: { emailVerified: true },
     create: {
       email: 'admin@hubcentral.com',
       password: hashedPassword,
       role: 'admin',
+      emailVerified: true,
+      authProvider: 'local',
+      name: 'Administrador',
     },
   });
 
-  const productCount = await prisma.product.count();
+  const productCount = await prisma.product.count({ where: { userId: admin.id } });
   if (productCount === 0) {
     await prisma.product.createMany({
       data: [
-        { name: 'PDV', price: 199.9, type: 'PDV' },
-        { name: 'Site Institucional', price: 149.9, type: 'SITE_INSTITUCIONAL' },
-        { name: 'Loja Online', price: 299.9, type: 'LOJA_ONLINE' },
+        { userId: admin.id, name: 'PDV', price: 199.9, type: 'PDV' },
+        { userId: admin.id, name: 'Site Institucional', price: 149.9, type: 'SITE_INSTITUCIONAL' },
+        { userId: admin.id, name: 'Loja Online', price: 299.9, type: 'LOJA_ONLINE' },
       ],
     });
   }

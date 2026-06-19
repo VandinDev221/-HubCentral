@@ -4,6 +4,7 @@ import { DashboardService } from '../../application/dashboard/dashboard.service'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/user.decorator';
 
 @ApiTags('Dashboard')
 @ApiBearerAuth()
@@ -11,11 +12,11 @@ import { Roles } from '../auth/decorators/roles.decorator';
 @Roles('admin')
 @Controller('dashboard')
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(private readonly dashboardService: DashboardService) { }
 
   @Get('metrics')
   @ApiOperation({ summary: 'Métricas do dashboard (MRR, clientes, inadimplência)' })
-  getMetrics() {
-    return this.dashboardService.getMetrics();
+  getMetrics(@CurrentUser() user: { id: string}) {
+    return this.dashboardService.getMetrics(user.id);
   }
 }

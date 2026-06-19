@@ -3,16 +3,24 @@ import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { AuditService } from '../../infrastructure/audit/audit.service';
 import { CreateInvoiceDto } from '../../presentation/invoices/dto/create-invoice.dto';
 
-const OVERDUE_GRACE_DAYS = 10;
-
 @Injectable()
 export class InvoicesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
-  ) {}
+  ) { }
 
-  async create(dto: CreateInvoiceDto, userId?: string) {
+  async create(dto: CreateInvoiceDto, userId: string) {
+    const client = await this.prisma.client.findFirst({
+      where: { id: dto.clientId, userId },
+    });
+    if (!client) throw new NotFoundException('Cliente não encontrado');
+
+    const subscription = await this.prisma.subscription.findFirst({
+      where: { id: dto.subscriptionId, clientId: dto.clientId, client: { userId } },
+    });
+    if (!subscription) throw new NotFoundException('Assinatura não encontrada');
+
     const invoice = await this.prisma.invoice.create({
       data: {
         clientId: dto.clientId,
@@ -33,9 +41,12 @@ export class InvoicesService {
     return invoice;
   }
 
-  async findAll(page = 1, limit = 20, status?: string) {
+  async findAll(userId: string, page = 1, limit = 20, status?: string) {
     const skip = (page - 1) * limit;
-    const where = status ? { status } : {};
+    const where = {
+      client: { userId },
+      ...(status ? { status } : {}),
+    };
     const [data, total] = await Promise.all([
       this.prisma.invoice.findMany({
         where,
@@ -55,17 +66,17 @@ export class InvoicesService {
     };
   }
 
-  async findOne(id: string) {
-    const invoice = await this.prisma.invoice.findUnique({
-      where: { id },
+  async findOne(id: string, userId: string) {
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id, client: { userId } },
       include: { client: true, subscription: { include: { product: true } } },
     });
     if (!invoice) throw new NotFoundException('Fatura não encontrada');
     return invoice;
   }
 
-  async markAsPaid(id: string, userId?: string) {
-    const invoice = await this.findOne(id);
+  async markAsPaid(id: string, userId: string) {
+    const invoice = await this.findOne(id, userId);
     const paidAt = new Date();
     await this.prisma.$transaction([
       this.prisma.invoice.update({
@@ -86,11 +97,11 @@ export class InvoicesService {
       payload: { amount: Number(invoice.amount), paidAt: paidAt.toISOString() },
       userId,
     });
-    return this.findOne(id);
+    return this.findOne(id, userId);
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(id: string, userId: string) {
+    await this.findOne(id, userId);
     await this.prisma.invoice.delete({ where: { id } });
     return { success: true };
   }

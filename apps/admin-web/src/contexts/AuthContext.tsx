@@ -1,60 +1,69 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-
-const TOKEN_KEY = 'hub_central_token';
-const USER_KEY = 'hub_central_user';
-
-interface User {
-  id: string;
-  email: string;
-  role: string;
-}
+import {
+  authPost,
+  saveSession,
+  clearSession,
+  loadStoredSession,
+  type AuthSession,
+  type AuthUser,
+} from '../api/auth';
 
 interface AuthContextValue {
   token: string | null;
-  user: User | null;
+  user: AuthUser | null;
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name?: string) => Promise<void>;
+  verifyRegistration: (email: string, code: string) => Promise<void>;
+  resendCode: (email: string) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
-  const [user, setUser] = useState<User | null>(() => {
-    const raw = localStorage.getItem(USER_KEY);
-    return raw ? JSON.parse(raw) : null;
-  });
+  const [token, setToken] = useState<string | null>(() => loadStoredSession().token);
+  const [user, setUser] = useState<AuthUser | null>(() => loadStoredSession().user);
 
-  const apiBase = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
+  const applySession = useCallback((session: AuthSession) => {
+    setToken(session.accessToken);
+    setUser(session.user);
+    saveSession(session);
+  }, []);
+
   const login = useCallback(async (email: string, password: string) => {
-    if (import.meta.env.PROD && !apiBase) {
-      throw new Error('VITE_API_URL não configurada na Vercel. Defina a URL da API (Render) e faça redeploy.');
-    }
-    const res = await fetch(`${apiBase}/v1/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.message || 'Login falhou');
-    }
-    const data = await res.json();
-    setToken(data.accessToken);
-    setUser(data.user);
-    localStorage.setItem(TOKEN_KEY, data.accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-  }, [apiBase]);
+    const data = await authPost<AuthSession>('/login', { email, password });
+    applySession(data);
+  }, [applySession]);
+
+  const register = useCallback(async (email: string, password: string, name?: string) => {
+    await authPost('/register', { email, password, name });
+  }, []);
+
+  const verifyRegistration = useCallback(async (email: string, code: string) => {
+    const data = await authPost<AuthSession>('/register/verify', { email, code });
+    applySession(data);
+  }, [applySession]);
+
+  const resendCode = useCallback(async (email: string) => {
+    await authPost('/register/resend', { email });
+  }, []);
+
+  const loginWithGoogle = useCallback(async (credential: string) => {
+    const data = await authPost<AuthSession>('/google', { credential });
+    applySession(data);
+  }, [applySession]);
 
   const logout = useCallback(() => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    clearSession();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, user, login, logout }}>
+    <AuthContext.Provider
+      value={{ token, user, login, register, verifyRegistration, resendCode, loginWithGoogle, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

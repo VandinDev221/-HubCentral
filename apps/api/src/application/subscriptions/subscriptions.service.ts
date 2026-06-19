@@ -5,12 +5,12 @@ import { UpdateSubscriptionDto } from '../../presentation/subscriptions/dto/upda
 
 @Injectable()
 export class SubscriptionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  async create(dto: CreateSubscriptionDto) {
+  async create(dto: CreateSubscriptionDto, userId: string) {
     const [client, product] = await Promise.all([
-      this.prisma.client.findUnique({ where: { id: dto.clientId } }),
-      this.prisma.product.findUnique({ where: { id: dto.productId } }),
+      this.prisma.client.findFirst({ where: { id: dto.clientId, userId } }),
+      this.prisma.product.findFirst({ where: { id: dto.productId, userId } }),
     ]);
     if (!client) throw new NotFoundException('Cliente não encontrado');
     if (!product) throw new NotFoundException('Produto não encontrado');
@@ -20,6 +20,7 @@ export class SubscriptionsService {
         clientId: dto.clientId,
         productId: dto.productId,
         status: 'active',
+        client: { userId },
       },
     });
     if (existing) {
@@ -43,9 +44,12 @@ export class SubscriptionsService {
     });
   }
 
-  async findAll(page = 1, limit = 20, status?: string) {
+  async findAll(userId: string, page = 1, limit = 20, status?: string) {
     const skip = (page - 1) * limit;
-    const where = status ? { status } : {};
+    const where = {
+      client: { userId },
+      ...(status ? { status } : {}),
+    };
     const [data, total] = await Promise.all([
       this.prisma.subscription.findMany({
         where,
@@ -65,17 +69,17 @@ export class SubscriptionsService {
     };
   }
 
-  async findOne(id: string) {
-    const sub = await this.prisma.subscription.findUnique({
-      where: { id },
+  async findOne(id: string, userId: string) {
+    const sub = await this.prisma.subscription.findFirst({
+      where: { id, client: { userId } },
       include: { client: true, product: true, invoices: true },
     });
     if (!sub) throw new NotFoundException('Assinatura não encontrada');
     return sub;
   }
 
-  async update(id: string, dto: UpdateSubscriptionDto) {
-    await this.findOne(id);
+  async update(id: string, dto: UpdateSubscriptionDto, userId: string) {
+    await this.findOne(id, userId);
     return this.prisma.subscription.update({
       where: { id },
       data: {
@@ -87,8 +91,8 @@ export class SubscriptionsService {
     });
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(id: string, userId: string) {
+    await this.findOne(id, userId);
     await this.prisma.subscription.delete({ where: { id } });
     return { success: true };
   }
