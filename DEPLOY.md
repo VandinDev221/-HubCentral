@@ -62,10 +62,6 @@ Local não precisa de `VITE_API_URL` — o proxy do Vite encaminha `/v1` para lo
 
 ---
 
-## Detalhes adicionais
-
-Ver seções abaixo para alternativas de banco (Vercel Postgres / Neon manual) e opções de deploy.
-
 ## Deploy da API no Render
 
 1. [render.com](https://render.com) → **New** → **Blueprint**
@@ -93,22 +89,16 @@ Comandos (já no `render.yaml`):
 1. Acesse [vercel.com](https://vercel.com) → seu projeto **Hub Central** (o do admin).
 2. Aba **Storage** → **Create Database** → escolha **Postgres** (Vercel Postgres, powered by Neon).
 3. Crie o banco (região próxima a você).
-4. Na aba **.env.local** (ou **Settings → Environment Variables**), a Vercel já deve ter criado algo como:
-   - `POSTGRES_URL` ou `DATABASE_URL`
-   - Copie a **connection string** que termina com `?sslmode=require` (obrigatório para conexão segura).
+4. Copie a **connection string** com `?sslmode=require`.
 
 ### Opção B: Neon (neon.tech)
 
 1. Acesse [neon.tech](https://neon.tech) e crie uma conta.
-2. Crie um novo projeto e anote a **connection string** (formato `postgresql://user:pass@host/dbname?sslmode=require`).
+2. Crie um novo projeto e anote a **connection string**.
 
 ---
 
-## 2. Usar a URL do banco na API (local ou servidor)
-
-A **API** (NestJS) precisa da variável `DATABASE_URL` apontando para esse banco.
-
-- No **apps/api**, crie ou edite o `.env` e defina:
+## 2. Variáveis da API
 
 ```env
 DATABASE_URL="postgresql://usuario:senha@host/banco?sslmode=require"
@@ -118,59 +108,37 @@ JWT_EXPIRES=7d
 ADMIN_ORIGIN=https://seu-admin.vercel.app
 ```
 
-Substitua pela connection string que a Vercel ou o Neon forneceram (geralmente já vem com `?sslmode=require`).
-
 ---
 
 ## 3. Rodar migrações no banco da nuvem
 
-Com o `DATABASE_URL` apontando para o banco criado (no `.env` da API):
-
 ```bash
-cd hub-central
 npm run db:generate
 npm run db:migrate:deploy
 npm run db:seed
 ```
 
-- `db:migrate:deploy`: aplica as migrações no banco de produção (sem criar novas).
-- `db:seed`: cria o usuário admin e dados iniciais (ex.: `admin@hubcentral.com` / `admin123`).
-
 ---
 
 ## 4. Onde rodar a API
 
-A **Vercel** hospeda só o **admin** (frontend estático). A **API** (NestJS) roda no **Render**.
+A **Vercel** hospeda só o **admin**. A **API** roda no **Render** (`render.yaml` na raiz).
 
-| Serviço   | Uso |
-|-----------|-----|
-| **Render**  | Web Service na raiz do monorepo (`render.yaml`), `npm run build:api` + `npm run start:api`. |
-
-Variáveis no Render:
-
-- `DATABASE_URL` = connection string do Neon
-- `JWT_SECRET` = chave secreta forte
-- `ADMIN_ORIGIN` = URL do admin na Vercel (CORS)
-- `PORT` = definido automaticamente pelo Render
-
-Depois de publicar, você terá uma URL da API, por exemplo: `https://hub-central-api.onrender.com`.
+Variáveis no Render: `DATABASE_URL`, `JWT_SECRET`, `ADMIN_ORIGIN`.
 
 ---
 
-## 5. Admin na Vercel apontando para a API
+## 5. Admin na Vercel
 
-No projeto do **admin** na Vercel (Settings → Environment Variables):
-
-- `VITE_API_URL` = `https://hub-central-api.onrender.com` (URL real da API no Render)
-
-No código, `import.meta.env.VITE_API_URL` é usada em `AuthContext` e `api/client.ts`. **Redeploy obrigatório** após alterar.
+- `VITE_API_URL` = URL da API no Render
+- **Redeploy obrigatório** após alterar
 
 ---
 
 ## 6. Resumo rápido
 
-1. **Criar banco**: Neon → `DATABASE_URL`
-2. **Render**: blueprint + `DATABASE_URL`, `JWT_SECRET`, `ADMIN_ORIGIN`
-3. **Migrar/seed**: GitHub Actions ou manual
-4. **Vercel**: Root `apps/admin-web`, `VITE_API_URL`, redeploy
-5. **Testar**: `/v1/health` na API + login no admin
+1. **Neon** → `DATABASE_URL`
+2. **Render** → blueprint + variáveis
+3. **GitHub Actions** → secret `DATABASE_URL`
+4. **Vercel** → `apps/admin-web` + `VITE_API_URL` + redeploy
+5. **Testar** → `/v1/health` + login

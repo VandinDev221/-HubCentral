@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 
 const TOKEN_KEY = 'hub_central_token';
 const USER_KEY = 'hub_central_user';
